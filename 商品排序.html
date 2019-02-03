@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <title>珠峰培训</title>
+    <link rel="icon" href="">
+    <!--引入外部文件-->
+    <link rel="stylesheet" href="css/reset.min.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+<div class="content">
+    <div class="header">
+        <span>排序</span>
+        <a href="javascript:;">上架时间
+            <i class="up"></i>
+            <i class="down"></i>
+        </a>
+        <a href="javascript:;">热度
+            <i class="up"></i>
+            <i class="down"></i>
+        </a>
+        <a href="javascript:;">价格
+            <i class="up"></i>
+            <i class="down"></i>
+        </a>
+    </div>
+    <ul id="list">
+        <!--<li>
+            <img src="img/1.jpg" alt="">
+            <span>华为畅享7（香槟金）</span>
+            <span>2018-01-01</span>
+            <span>1</span>
+            <span>992</span>
+        </li>-->
+    </ul>
+</div>
+<script src="js/myUtils.js"></script>
+<script>
+    let oHeader = document.getElementsByClassName("header"),
+        oLinks = oHeader[0].getElementsByTagName("a"),
+        oList = document.getElementById("list"),
+        oLis = oList.getElementsByTagName("li"),
+        oIs = oHeader[0].getElementsByTagName("i");
+    let data = ajax("GET", "./json/product.json", false);
+    let dataJSON = utils.toJSON(data);
+    let str = ``;
+    let newStr = bind_data(dataJSON, str);
+    oList.innerHTML = newStr;
+
+    function order(index) {
+
+        let goods = utils.toArray(oLis);
+        let flag = this.flag;
+        goods.sort(function (a, b) {
+            switch (index) {
+                case 0:
+                    return flag * (a.getAttribute("data-time").replace(/-/g, "") - b.getAttribute("data-time").replace(/-/g, ""));
+                case 1:
+
+                    return flag * (a.getAttribute("data-hot") - b.getAttribute("data-hot"));
+                case 2:
+                    return flag * (a.getAttribute("data-price") - b.getAttribute("data-price"));
+            }
+        });
+        //createDocumentFragment()方法，是用来创建一个虚拟的节点对象，或者说，是用来创建文档碎片节点。它可以包含各种类型的节点，在创建之初是空的；就是一个容器
+        let tempFragment = document.createDocumentFragment();
+        for (let i = 0; i < goods.length; i++) {
+            //向这个容器追加节点
+            tempFragment.appendChild(goods[i]);
+        }
+        console.log(tempFragment);
+        //由于每一次对文档的插入都会引起重新渲染（计算元素的尺寸，显示背景，内容等），所以进行多次插入操作使得浏览器发生了很多次渲染，效率是比较低的。这是我们提倡通过减少页面的渲染来提高DOM操作的效率的原因。一个优化的方法是将要创建的元素写到一个字符串上，然后一次性写到innerHTML上，这种利用浏览器对innerHTML的解析确实是相比上面的多次插入快了很多。但是构造字符串灵活性上面比较差，很难符合创建各种各样的DOM元素的需求。利用DocumentFragment，可以弥补这两个方法的不足。
+        oList.appendChild(tempFragment);
+    }
+
+    //绑定事件
+    for (let i = 0; i < oLinks.length; i++) {
+        oLinks[i].flag = 1;
+        (function (i) {
+            oLinks[i].onclick = function () {
+                //点击判断当前的oLinks[i]，如果不是当前点击的这个，那么就将他的flag恢复默认
+                for (let k = 0; k < oLinks.length; k++) {
+                    if (oLinks[k] !== this) {
+                        oLinks[k].flag = 1;
+                    }
+                }
+                //点击的时候，清除所有i标签的样式
+                let nowI = this.getElementsByTagName("i");
+                for (let j = 0; j < oIs.length; j++) {
+                    oIs[j].classList.remove("bg");
+                }
+                if (this.flag === 1) {
+                    nowI[0].classList.add("bg");
+                    nowI[1].classList.remove("bg");
+                } else {
+                    nowI[1].classList.add("bg");
+                    nowI[0].classList.remove("bg");
+                }
+                //改变order方法中this的指向，我们直接执行order的话，他里面的this指向的window，所以我们用call让方法中的this指向oLinks[i];
+                order.call(this, i);
+                this.flag *= -1;
+                console.log(this.flag);
+            }
+        })(i)
+    }
+</script>
+</body>
+</html>

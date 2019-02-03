@@ -1,0 +1,22 @@
+第一步：获取DOM元素
+第二步：发送Ajax请求
+       1、创建一个XMLHttpRequest实例
+       2、使用OPEN方法与服务器建立连接（method,url,false/true）;
+       3、监听onreadystatechange()
+            1、readyState===4
+            2、status===200；
+       4、向服务器端发送数据
+第三步：绑定数据
+        1、把我们接受到的JSON字符串，通过window.JSON.parse()转换成JSON对象
+        2、通过for循环，将我们转化成的JSON对象遍历，并且用ES6中的模板字符串，进行拼接
+        3、通过innerHTML将我们拼接好的字符串渲染到页面上
+第四步：绑定事件
+        1、通过for循环给获取的a绑定点击事件
+        2、给每一个a都添加一个标识flag
+        3、给每一个a添加一个自定义属性index，保存i的值（或者用闭包的形式）
+        4、将类数组转化成数组（[].slice.call(arrayLike)）
+        5、封装一个排序的方法（先接收this中的flag和index属性值，用我们转换的数组调用sort方法，传入一个回调函数，返回一个flag*（a-b），来判断是升序还是降序）。
+        6、将排好序的li渲染到页面上（DOM映射），为了防止dom多次回流，我们定义一个变量tempFragment=document.createDocumentFragment(),将li先appendChild到tempFragment中，然后一次性追加到list这个容器中。
+        7、再次循环获取的a标签，判断a是否和当前的this一致，如果不一致恢复除当前a的默认属性flag的值
+        8、给小三角设置样式（先清除所有i标签的样式，然后获取当前点击的a标签下面的i，根据当前a标签的flag属性值，给对应的i添加样式“bg”）
+        9、每次点击，让flag乘等于-1
